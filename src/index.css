@@ -1,0 +1,47 @@
+@import "tailwindcss";
+
+/* Global cursor pointer for all clickable elements */
+button,
+[role="button"],
+input[type="submit"],
+input[type="button"],
+input[type="reset"],
+a,
+.nav-link,
+.clickable,
+[data-clickable="true"] {
+  cursor: pointer !important;
+}
+
+/* Ensure buttons maintain pointer cursor on all states */
+button:hover,
+button:focus,
+button:active,
+[role="button"]:hover,
+[role="button"]:focus,
+[role="button"]:active,
+input[type="submit"]:hover,
+input[type="submit"]:focus,
+input[type="submit"]:active,
+input[type="button"]:hover,
+input[type="button"]:focus,
+input[type="button"]:active,
+input[type="reset"]:hover,
+input[type="reset"]:focus,
+input[type="reset"]:active,
+a:hover,
+a:focus,
+a:active {
+  cursor: pointer !important;
+}
+
+/* Rich text editor styles */
+.rsw-ce ul {
+  list-style: disc;
+  padding-left: 2em;
+}
+
+.rsw-ce ol {
+  list-style: decimal;
+  padding-left: 2em;
+}
