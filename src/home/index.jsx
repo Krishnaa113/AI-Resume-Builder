@@ -219,13 +219,11 @@ function Home() {
                 Create professional resumes that get you noticed. AI-powered suggestions and beautiful templates.
               </p>
               <div className="flex space-x-4">
-                <a href="#" className="text-gray-400 hover:text-white">
-                  <Twitter className="w-5 h-5" />
-                </a>
-                <a href="#" className="text-gray-400 hover:text-white">
+                
+                <a href="https://www.linkedin.com/in/krishna-jha-a82ba8280/" className="text-gray-400 hover:text-white">
                   <Linkedin className="w-5 h-5" />
                 </a>
-                <a href="#" className="text-gray-400 hover:text-white">
+                <a href="https://github.com/Krishnaa113" className="text-gray-400 hover:text-white">
                   <Github className="w-5 h-5" />
                 </a>
               </div>
