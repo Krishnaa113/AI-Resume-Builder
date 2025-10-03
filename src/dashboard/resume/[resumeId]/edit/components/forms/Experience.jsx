@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import React from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { useState,useEffect,useContext } from 'react';
 import RichTextEditor from '../RichTextEditor';
 import {ResumeInfoContext} from '@/context/ResumeInfoContext';
@@ -24,27 +24,30 @@ function Experience({enableNext}) {
     const {resumeInfo,setResumeInfo}=useContext(ResumeInfoContext);
     const params=useParams();
 
-    const handleChange=(index,event)=>{
+    const handleChange = useCallback((index, event) => {
        enableNext(false);
-       const newEntries=experienceList.slice();
-       const {name,value}=event.target;
-       newEntries[index][name]=value;
+       const newEntries = experienceList.slice();
+       const {name, value} = event.target;
+       newEntries[index][name] = value;
        setExperienceList(newEntries);
-    }
-    const AddNewExperience=()=>{
-        setExperienceList([...experienceList,formField])
-    }
-    const RemoveExperience=(index)=>{
+    }, [experienceList, enableNext]);
+
+    const AddNewExperience = useCallback(() => {
+        setExperienceList(prev => [...prev, formField]);
+    }, []);
+
+    const RemoveExperience = useCallback((index) => {
         if (experienceList.length > 1) {
-            setExperienceList(experienceList=>experienceList.filter((_, i) => i !== index))
+            setExperienceList(prev => prev.filter((_, i) => i !== index));
         }
-    }
-const handleRichTextEditor=(index,name,e)=>{
-   enableNext(false);
-   const newEntries=experienceList.slice();
-   newEntries [index] [name]= e.target.value;
-   setExperienceList(newEntries);
-}
+    }, [experienceList.length]);
+
+    const handleRichTextEditor = useCallback((index, name, e) => {
+       enableNext(false);
+       const newEntries = experienceList.slice();
+       newEntries[index][name] = e.target.value;
+       setExperienceList(newEntries);
+    }, [experienceList, enableNext]);
 
     useEffect(()=>{
        setResumeInfo({
@@ -98,7 +101,7 @@ const handleRichTextEditor=(index,name,e)=>{
         <form onSubmit={onSave} className="space-y-8">
           <div className="space-y-8">
             {experienceList.map((item, index) => (
-              <div key={index} className="relative group border border-white/20 bg-white/60 backdrop-blur rounded-xl shadow-lg p-6 transition-all duration-300 hover:shadow-2xl">
+              <div key={index} className="relative group border border-white/20 bg-white/60 backdrop-blur rounded-xl  p-6 transition-all duration-300 ">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-gray-700 font-medium mb-1">Position Title</label>
@@ -128,23 +131,23 @@ const handleRichTextEditor=(index,name,e)=>{
                     <label className="block text-gray-700 font-medium mb-1">Work Summary</label>
                     <RichTextEditor
                       index={index}
-                      onRichTextEditorChange={(event) => handleRichTextEditor(index, 'workSummery', event)}
+                      onRichTextEditorChange={(event) => handleRichTextEditor(index, 'workSummery',event)}
                       className="bg-white/80 backdrop-blur border border-gray-200 rounded-lg px-3 py-2 focus:ring-2 focus:ring-primary/60 transition-all min-h-[60px]"
                     />
                   </div>
                 </div>
                 <div className="flex gap-3 mt-4">
-                  <Button type="button" variant="outline" className="bg-gradient-to-r from-blue-500 to-purple-500 text-white font-semibold shadow-md hover:scale-105 active:scale-95 transition-all" onClick={AddNewExperience}>+ Add More</Button>
-                  <Button type="button" variant="outline" className="bg-red-500/90 text-white font-semibold shadow-md hover:scale-105 active:scale-95 transition-all" onClick={() => RemoveExperience(index)} disabled={experienceList.length === 1}>- Remove</Button>
+                  <Button type="button" variant="outline" className="bg-gradient-to-r from-blue-500 to-purple-500 text-white font-semibold shadow-md hover:scale-105 active:scale-95 transition-all w-20" onClick={AddNewExperience}> Add More</Button>
+                  <Button type="button" variant="outline" className="bg-red-500/90 text-white font-semibold shadow-md hover:scale-105 active:scale-95 transition-all w-15" onClick={() => RemoveExperience(index)} disabled={experienceList.length === 1}> Remove</Button>
                 </div>
               </div>
             ))}
           </div>
-          <div className="sticky bottom-0 bg-transparent pt-4 flex justify-end z-10">
+          <div className=" bottom-0 bg-transparent pt-4 flex justify-end z-10">
             <Button
               type="submit"
               disabled={loading}
-              className="bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold px-8 py-3 rounded-xl shadow-lg hover:scale-105 active:scale-95 transition-all"
+              className="bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold px-2 py-1.5 sm:px-4 sm:py-2 text-sm sm:text-base rounded-xl shadow-lg hover:scale-105 active:scale-95 transition-all"
             >
               {loading ? <LoaderCircle className="animate-spin" /> : "Save"}
             </Button>

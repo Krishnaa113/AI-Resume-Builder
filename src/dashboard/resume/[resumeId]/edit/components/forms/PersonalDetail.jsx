@@ -80,7 +80,7 @@ function PersonalDetail({enableNext}) {
             <Input name="email" defaultValue={resumeInfo?.email} required onChange={handleInputChange} className="bg-white/80 backdrop-blur border border-gray-200 rounded-lg px-3 py-2 focus:ring-2 focus:ring-primary/60 transition-all" />
           </div>
         </div>
-        <div className="sticky bottom-0 bg-transparent pt-4 flex justify-end z-10">
+        <div className=" bottom-0 bg-transparent pt-4 flex justify-end z-10">
           <Button
             type="submit"
             disabled={loading}
@@ -94,4 +94,4 @@ function PersonalDetail({enableNext}) {
   )
 }
 
-export default PersonalDetail
+export default PersonalDetail;

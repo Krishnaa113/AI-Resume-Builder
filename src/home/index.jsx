@@ -137,21 +137,20 @@ function Home() {
             </div>
           </div>
         </div>
-        
         {/* Hero Image/Preview */}
         <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
           <div className="bg-white rounded-2xl shadow-2xl p-8 transform rotate-1 hover:rotate-0 transition-transform duration-300">
             <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg p-6">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-2xl font-bold text-gray-900">John Doe</h3>
+                <h3 className="text-2xl font-bold text-gray-900">Krishn Jha</h3>
                 <div className="text-sm text-gray-600">Software Engineer</div>
               </div>
               <div className="space-y-3 text-sm text-gray-600">
-                <p>📧 john.doe@email.com | 📱 (555) 123-4567</p>
-                <p>📍 San Francisco, CA | 🔗 linkedin.com/in/johndoe</p>
+                <p>📧 kjha24760@gmail.com | 📱 9818046831</p>
+                <p>📍 New Delhi,Delhi | 🔗 https://www.linkedin.com/in/krishna-jha-a82ba8280/</p>
                 <div className="border-t pt-3">
                   <p className="font-medium text-gray-800 mb-2">Professional Summary</p>
-                  <p>Experienced software engineer with 5+ years building scalable web applications...</p>
+                  <p>Fresher, try to gain real-world experience</p>
                 </div>
               </div>
             </div>
@@ -205,10 +204,7 @@ function Home() {
                 <ArrowRight className="w-5 h-5 ml-2" />
               </Button>
             </Link>
-            <Button variant="outline" className="px-8 py-3 text-lg">
-              <Play className="w-5 h-5 mr-2" />
-              Watch Demo
-            </Button>
+          
           </div>
         </div>
       </section>
@@ -223,13 +219,10 @@ function Home() {
                 Create professional resumes that get you noticed. AI-powered suggestions and beautiful templates.
               </p>
               <div className="flex space-x-4">
-                <a href="#" className="text-gray-400 hover:text-white">
-                  <Twitter className="w-5 h-5" />
-                </a>
-                <a href="#" className="text-gray-400 hover:text-white">
+                <a href="https://www.linkedin.com/in/krishna-jha-a82ba8280/" className="text-gray-400 hover:text-white">
                   <Linkedin className="w-5 h-5" />
                 </a>
-                <a href="#" className="text-gray-400 hover:text-white">
+                <a href="https://github.com/Krishnaa113" className="text-gray-400 hover:text-white">
                   <Github className="w-5 h-5" />
                 </a>
               </div>

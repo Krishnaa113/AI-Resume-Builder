@@ -251,13 +251,13 @@ function Certificate({enableNext}) {
                 </div>
                </div>
                <div className="flex gap-3 mt-4">
-                 <Button type="button" variant="outline" className="bg-gradient-to-r from-green-500 to-emerald-500 text-white font-semibold shadow-md hover:scale-105 active:scale-95 transition-all" onClick={AddNewCertificate}>+ Add More Certificates</Button>
-                 <Button type="button" variant="outline" className="bg-red-500/90 text-white font-semibold shadow-md hover:scale-105 active:scale-95 transition-all" onClick={() => RemoveCertificate(index)} disabled={certificateList.length === 1}>- Remove</Button>
+                 <Button type="button" variant="outline" className="bg-gradient-to-r from-green-500 to-emerald-500 text-white font-semibold shadow-md hover:scale-105 active:scale-95 transition-all w-20" onClick={AddNewCertificate}>Add More Certificates</Button>
+                 <Button type="button" variant="outline" className="bg-gradient-to-r from-green-500 to-emerald-500 text-white font-semibold shadow-md hover:scale-105 active:scale-95 transition-all w-15" onClick={() => RemoveCertificate(index)} disabled={certificateList.length === 1}>Remove</Button>
                </div>
              </div>
           ))}
         </div>
-        <div className="sticky bottom-0 bg-transparent pt-4 flex justify-end z-10">
+        <div className=" bottom-0 bg-transparent pt-4 flex justify-end z-10">
           <Button 
             type="submit" 
             disabled={loading} 

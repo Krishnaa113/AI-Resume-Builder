@@ -117,11 +117,11 @@ function Dashboard() {
               <NavLink
                 to="/"
                 className={({ isActive }) =>
-                  `flex items-center gap-2 px-2 py-1 font-medium text-gray-600 hover:text-blue-600 transition-colors relative ${isActive ? 'text-blue-600' : ''}`
+                  `flex items-center gap-2 px-2 py-1 font-medium text-gray-600 hover:text-blue-600 transition-colors relative text-sm sm:text-base ${isActive ? 'text-blue-600' : ''}`
                 }
               >
-                <Home className="w-5 h-5" />
-                Home
+                <Home className="w-4 h-4 sm:w-5 sm:h-5" />
+                <span className="hidden sm:inline">Home</span>
                 {location.pathname === '/' && (
                   <span className="absolute left-0 -bottom-1 w-full h-1 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full"></span>
                 )}
@@ -129,31 +129,31 @@ function Dashboard() {
               <NavLink
                 to="/dashboard"
                 className={({ isActive }) =>
-                  `flex items-center gap-2 px-2 py-1 font-medium text-gray-600 hover:text-blue-600 transition-colors relative ${isActive ? 'text-blue-600' : ''}`
+                  `flex items-center gap-2 px-2 py-1 font-medium text-gray-600 hover:text-blue-600 transition-colors relative text-sm sm:text-base ${isActive ? 'text-blue-600' : ''}`
                 }
               >
-                <FileText className="w-5 h-5" />
-                Dashboard
+                <FileText className="w-4 h-4 sm:w-5 sm:h-5" />
+                <span className="hidden sm:inline">Dashboard</span>
                 {location.pathname === '/dashboard' && (
                   <span className="absolute left-0 -bottom-1 w-full h-1 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full"></span>
                 )}
               </NavLink>
             </nav>
             {/* User Info & Actions */}
-            <div className="flex items-center gap-4">
-              <Button variant="ghost" size="icon" className="relative">
-                <Bell className="w-5 h-5 text-gray-600" />
-                <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"></span>
+            <div className="flex items-center gap-2 sm:gap-4">
+              <Button variant="ghost" size="icon" className="relative h-8 w-8 sm:h-10 sm:w-10">
+                <Bell className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
+                <span className="absolute -top-1 -right-1 w-2 h-2 sm:w-3 sm:h-3 bg-red-500 rounded-full"></span>
               </Button>
-              <Button variant="ghost" size="icon">
-                <Settings className="w-5 h-5 text-gray-600" />
+              <Button variant="ghost" size="icon" className="h-8 w-8 sm:h-10 sm:w-10">
+                <Settings className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
               </Button>
-              <div className="flex items-center gap-2 bg-gray-50 rounded-lg px-3 py-2">
-                <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
-                  <User className="w-4 h-4 text-white" />
+              <div className="flex items-center gap-2 bg-gray-50 rounded-lg px-2 sm:px-3 py-1 sm:py-2 hidden sm:flex">
+                <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
+                  <User className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
                 </div>
-                <div className="text-right">
-                  <p className="text-sm font-medium text-gray-900">
+                <div className="text-right hidden md:block">
+                  <p className="text-xs sm:text-sm font-medium text-gray-900">
                     {user?.firstName || user?.emailAddresses?.[0]?.emailAddress}
                   </p>
                   <p className="text-xs text-gray-500">Dashboard</p>
@@ -228,17 +228,17 @@ function Dashboard() {
                 variant={viewMode === 'grid' ? 'default' : 'ghost'}
                 size="sm"
                 onClick={() => setViewMode('grid')}
-                className="p-2 rounded-md"
+                className="p-1.5 sm:p-2 rounded-md h-8 w-8 sm:h-10 sm:w-10"
               >
-                <Grid3X3 className="w-4 h-4" />
+                <Grid3X3 className="w-3 h-3 sm:w-4 sm:h-4" />
               </Button>
               <Button
                 variant={viewMode === 'list' ? 'default' : 'ghost'}
                 size="sm"
                 onClick={() => setViewMode('list')}
-                className="p-2 rounded-md"
+                className="p-1.5 sm:p-2 rounded-md h-8 w-8 sm:h-10 sm:w-10"
               >
-                <List className="w-4 h-4" />
+                <List className="w-3 h-3 sm:w-4 sm:h-4" />
               </Button>
             </div>
           </div>

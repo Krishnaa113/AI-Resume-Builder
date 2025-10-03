@@ -1,10 +1,12 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { LoaderCircle, Download, Share2, Copy, Check, Mail, Linkedin, Twitter, CheckCircle, PartyPopper } from 'lucide-react';
 import { ResumeInfoContext } from '../../../../../../context/ResumeInfoContext';
 import { useParams, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 
 function ResumeFinal() {
   const { resumeInfo } = useContext(ResumeInfoContext);
@@ -14,6 +16,7 @@ function ResumeFinal() {
   const [sharing, setSharing] = useState(false);
   const [shareEmail, setShareEmail] = useState('');
   const [copied, setCopied] = useState(false);
+  const resumeRef = useRef(null);
 
   const generateResumeContent = () => {
     const content = `
@@ -80,30 +83,255 @@ Resume ID: ${params?.resumeId}
     return content;
   };
 
+  // Helper functions to check if sections have meaningful content
+  const hasContent = (text) => {
+    return text && text.trim().length > 0 && text.trim() !== 'undefined' && text.trim() !== 'null';
+  };
+
+  const hasArrayContent = (array) => {
+    return array && Array.isArray(array) && array.length > 0 && array.some(item => 
+      item && typeof item === 'object' && Object.values(item).some(val => hasContent(val))
+    );
+  };
+
+  const hasExperienceContent = (experience) => {
+    return hasArrayContent(experience) && experience.some(exp => 
+      hasContent(exp.title) || hasContent(exp.companyName) || hasContent(exp.workSummery)
+    );
+  };
+
+  const hasEducationContent = (education) => {
+    return hasArrayContent(education) && education.some(edu => 
+      hasContent(edu.degree) || hasContent(edu.major) || hasContent(edu.universityName)
+    );
+  };
+
+  const hasSkillsContent = (skills) => {
+    return hasArrayContent(skills) && skills.some(skill => hasContent(skill.skillName));
+  };
+
+  const hasCertificatesContent = (certificates) => {
+    return hasArrayContent(certificates) && certificates.some(cert => 
+      hasContent(cert.certificateName) || hasContent(cert.issuingOrganization)
+    );
+  };
+
+  const hasContactInfo = () => {
+    return hasContent(resumeInfo?.email) || hasContent(resumeInfo?.phone) || hasContent(resumeInfo?.address);
+  };
+
   const handleDownload = async () => {
     setDownloading(true);
+    
     try {
-      // Simulate download process
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // Debug: Log the resume info to see what data we have
+      console.log('Resume Info for PDF:', resumeInfo);
       
-      // Generate resume content
-      const content = generateResumeContent();
+      // Check if we have any data
+      if (!resumeInfo || Object.keys(resumeInfo).length === 0) {
+        toast.error("No resume data found. Please complete your resume first.");
+        setDownloading(false);
+        return;
+      }
+
+      // Create a simple text-based PDF using jsPDF
+      const pdf = new jsPDF('p', 'mm', 'a4');
       
-      // Create and download file
-      const blob = new Blob([content], { type: 'text/plain' });
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `${resumeInfo?.firstName || 'Resume'}_${resumeInfo?.lastName || 'Resume'}.txt`;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
+      // Set font
+      pdf.setFont('helvetica');
       
-      toast.success("Resume downloaded successfully!");
+      // Starting position
+      let y = 20;
+      const margin = 20;
+      const pageWidth = 210;
+      const contentWidth = pageWidth - (2 * margin);
+      
+      // Helper function to add text with word wrapping
+      const addText = (text, fontSize = 12, isBold = false) => {
+        if (!text) return y;
+        
+        pdf.setFontSize(fontSize);
+        if (isBold) {
+          pdf.setFont('helvetica', 'bold');
+        } else {
+          pdf.setFont('helvetica', 'normal');
+        }
+        
+        const lines = pdf.splitTextToSize(text, contentWidth);
+        
+        // Check if we need a new page
+        if (y + (lines.length * fontSize * 0.4) > 280) {
+          pdf.addPage();
+          y = 20;
+        }
+        
+        pdf.text(lines, margin, y);
+        y += lines.length * fontSize * 0.4 + 5;
+        
+        return y;
+      };
+      
+      // Helper function to add section header
+      const addSectionHeader = (title) => {
+        y = addText(title, 14, true);
+        // Add underline
+        pdf.line(margin, y - 2, pageWidth - margin, y - 2);
+        y += 5;
+      };
+      
+      // Header - Only if we have a name
+      const fullName = `${resumeInfo?.firstName || ''} ${resumeInfo?.lastName || ''}`.trim();
+      if (hasContent(fullName)) {
+        y = addText(fullName, 18, true);
+      }
+      
+      if (hasContent(resumeInfo?.jobTitle)) {
+        y = addText(resumeInfo.jobTitle, 14, true);
+      }
+      
+      // Contact Information - Only if we have contact details
+      if (hasContactInfo()) {
+        const contactInfo = [];
+        if (hasContent(resumeInfo?.email)) contactInfo.push(`Email: ${resumeInfo.email}`);
+        if (hasContent(resumeInfo?.phone)) contactInfo.push(`Phone: ${resumeInfo.phone}`);
+        if (hasContent(resumeInfo?.address)) contactInfo.push(`Address: ${resumeInfo.address}`);
+        
+        if (contactInfo.length > 0) {
+          y = addText(contactInfo.join(' | '), 10);
+          y += 10;
+        }
+      }
+      
+      // Professional Summary - Only if we have summary content
+      if (hasContent(resumeInfo?.summery)) {
+        addSectionHeader('Professional Summary');
+        y = addText(resumeInfo.summery, 11);
+        y += 10;
+      }
+      
+      // Professional Experience - Only if we have experience content
+      if (hasExperienceContent(resumeInfo?.experience)) {
+        addSectionHeader('Professional Experience');
+        
+        resumeInfo.experience.forEach(exp => {
+          if (hasContent(exp.title)) {
+            y = addText(exp.title, 12, true);
+          }
+          
+          const expInfo = [];
+          if (hasContent(exp.companyName)) expInfo.push(exp.companyName);
+          if (hasContent(exp.city) || hasContent(exp.state)) {
+            expInfo.push([exp.city, exp.state].filter(val => hasContent(val)).join(', '));
+          }
+          if (hasContent(exp.startDate) || hasContent(exp.endDate)) {
+            expInfo.push(`${exp.startDate || ''} - ${exp.endDate || 'Present'}`);
+          }
+          
+          if (expInfo.length > 0) {
+            y = addText(expInfo.join(' | '), 10);
+          }
+          
+          if (hasContent(exp.workSummery)) {
+            y = addText(exp.workSummery, 10);
+          }
+          
+          y += 5;
+        });
+      }
+      
+      // Education - Only if we have education content
+      if (hasEducationContent(resumeInfo?.education)) {
+        addSectionHeader('Education');
+        
+        resumeInfo.education.forEach(edu => {
+          const degreeInfo = [];
+          if (hasContent(edu.degree)) degreeInfo.push(edu.degree);
+          if (hasContent(edu.major)) degreeInfo.push(edu.major);
+          
+          if (degreeInfo.length > 0) {
+            y = addText(degreeInfo.join(' in '), 12, true);
+          }
+          
+          const eduInfo = [];
+          if (hasContent(edu.universityName)) eduInfo.push(edu.universityName);
+          if (hasContent(edu.startDate) || hasContent(edu.endDate)) {
+            eduInfo.push(`${edu.startDate || ''} - ${edu.endDate || ''}`);
+          }
+          
+          if (eduInfo.length > 0) {
+            y = addText(eduInfo.join(' | '), 10);
+          }
+          
+          if (hasContent(edu.description)) {
+            y = addText(edu.description, 10);
+          }
+          
+          y += 5;
+        });
+      }
+      
+      // Skills - Only if we have skills content
+      if (hasSkillsContent(resumeInfo?.skills)) {
+        addSectionHeader('Skills');
+        const skillsText = resumeInfo.skills
+          .filter(skill => hasContent(skill.skillName))
+          .map(skill => 
+            `${skill.skillName}${hasContent(skill.proficiency) ? ': ' + skill.proficiency + '%' : ''}`
+          ).join(', ');
+        y = addText(skillsText, 11);
+        y += 10;
+      }
+      
+      // Certificates - Only if we have certificates content
+      if (hasCertificatesContent(resumeInfo?.certificates)) {
+        addSectionHeader('Certificates');
+        
+        resumeInfo.certificates.forEach(cert => {
+          if (hasContent(cert.certificateName)) {
+            y = addText(cert.certificateName, 12, true);
+          }
+          
+          const certInfo = [];
+          if (hasContent(cert.issuingOrganization)) certInfo.push(cert.issuingOrganization);
+          if (hasContent(cert.issueDate)) certInfo.push(cert.issueDate);
+          
+          if (certInfo.length > 0) {
+            y = addText(certInfo.join(' | '), 10);
+          }
+          
+          if (hasContent(cert.credentialId)) {
+            y = addText(`Credential ID: ${cert.credentialId}`, 10);
+          }
+          
+          y += 5;
+        });
+      }
+      
+      // Check if we have any content at all
+      const hasAnyContent = hasContent(fullName) || 
+                           hasContent(resumeInfo?.jobTitle) || 
+                           hasContactInfo() || 
+                           hasContent(resumeInfo?.summery) || 
+                           hasExperienceContent(resumeInfo?.experience) || 
+                           hasEducationContent(resumeInfo?.education) || 
+                           hasSkillsContent(resumeInfo?.skills) || 
+                           hasCertificatesContent(resumeInfo?.certificates);
+      
+      if (!hasAnyContent) {
+        toast.error("No content found in resume. Please add some information before downloading.");
+        setDownloading(false);
+        return;
+      }
+      
+      // Save the PDF
+      const filename = `${resumeInfo?.firstName || ''} ${resumeInfo?.lastName || 'Resume'}.pdf`.trim();
+      pdf.save(filename);
+      
+      toast.success("PDF downloaded successfully!");
+      
     } catch (error) {
-      console.error('Download error:', error);
-      toast.error("Failed to download resume");
+      console.error('PDF generation error:', error);
+      toast.error("Failed to generate PDF. Please try again.");
     } finally {
       setDownloading(false);
     }
@@ -189,12 +417,12 @@ Resume ID: ${params?.resumeId}
             Download Resume
           </h3>
           <p className="text-blue-700 mb-6">
-            Download your resume as a text file that you can easily share or print.
+            Download your resume as a professional PDF with all formatting and theme colors preserved.
           </p>
           <Button 
             onClick={handleDownload}
             disabled={downloading}
-            className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold py-3 rounded-xl shadow-lg hover:scale-105 transition-all duration-200"
+            className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold px-2 py-1.5 sm:px-4 sm:py-2 text-sm sm:text-base rounded-xl shadow-lg hover:scale-105 transition-all duration-200"
           >
             {downloading ? (
               <>
@@ -232,7 +460,7 @@ Resume ID: ${params?.resumeId}
             <Button 
               onClick={handleShare}
               disabled={sharing || !shareEmail}
-              className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-bold py-3 rounded-xl shadow-lg hover:scale-105 transition-all duration-200"
+              className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-bold px-2 py-1.5 sm:px-4 sm:py-2 text-sm sm:text-base rounded-xl shadow-lg hover:scale-105 transition-all duration-200"
             >
               {sharing ? (
                 <>
@@ -252,7 +480,7 @@ Resume ID: ${params?.resumeId}
           <Button 
             onClick={handleCopyLink}
             variant="outline"
-            className="w-full border-green-300 text-green-700 hover:bg-green-50 font-medium py-3 rounded-xl transition-all duration-200"
+            className="w-full border-green-300 text-green-700 hover:bg-green-50 font-medium px-2 py-1.5 sm:px-4 sm:py-2 text-sm sm:text-base rounded-xl transition-all duration-200"
           >
             {copied ? (
               <>
@@ -275,21 +503,21 @@ Resume ID: ${params?.resumeId}
         <div className="flex justify-center gap-4">
           <Button
             onClick={() => handleSocialShare('linkedin')}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl shadow-lg hover:scale-105 transition-all duration-200"
+            className="bg-blue-600 hover:bg-blue-700 text-white px-2 py-1.5 sm:px-4 sm:py-2 text-sm sm:text-base rounded-xl shadow-lg hover:scale-105 transition-all duration-200"
           >
             <Linkedin className="w-5 h-5 mr-2" />
             LinkedIn
           </Button>
           <Button
             onClick={() => handleSocialShare('twitter')}
-            className="bg-sky-500 hover:bg-sky-600 text-white px-6 py-3 rounded-xl shadow-lg hover:scale-105 transition-all duration-200"
+            className="bg-sky-500 hover:bg-sky-600 text-white px-2 py-1.5 sm:px-4 sm:py-2 text-sm sm:text-base rounded-xl shadow-lg hover:scale-105 transition-all duration-200"
           >
             <Twitter className="w-5 h-5 mr-2" />
             Twitter
           </Button>
           <Button
             onClick={() => handleSocialShare('email')}
-            className="bg-gray-600 hover:bg-gray-700 text-white px-6 py-3 rounded-xl shadow-lg hover:scale-105 transition-all duration-200"
+            className="bg-gray-600 hover:bg-gray-700 text-white px-2 py-1.5 sm:px-4 sm:py-2 text-sm sm:text-base rounded-xl shadow-lg hover:scale-105 transition-all duration-200"
           >
             <Mail className="w-5 h-5 mr-2" />
             Email
@@ -302,7 +530,7 @@ Resume ID: ${params?.resumeId}
         <Button
           onClick={handleBackToDashboard}
           variant="outline"
-          className="bg-white/80 backdrop-blur border border-gray-300 text-gray-700 hover:bg-white font-medium px-8 py-3 rounded-xl shadow-lg hover:scale-105 transition-all duration-200"
+          className="bg-white/80 backdrop-blur border border-gray-300 text-gray-700 hover:bg-white font-medium px-2 py-1.5 sm:px-4 sm:py-2 text-sm sm:text-base rounded-xl shadow-lg hover:scale-105 transition-all duration-200"
         >
           ← Back to Dashboard
         </Button>

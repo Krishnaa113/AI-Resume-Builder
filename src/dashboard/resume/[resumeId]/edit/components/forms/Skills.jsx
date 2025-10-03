@@ -94,7 +94,7 @@ function Skills({enableNext}) {
       <form onSubmit={onSave} className="space-y-8">
         <div className="space-y-8">
           {skillsList.map((item,index)=>(
-             <div key={index} className="relative group border border-white/20 bg-white/60 backdrop-blur rounded-xl shadow-lg p-6 transition-all duration-300 hover:shadow-2xl">
+             <div key={index} className="relative group border border-white/20 bg-white/60 backdrop-blur rounded-xl p-6 transition-all duration-300 ">
                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-gray-700 font-medium mb-1">Skill Name</label>
@@ -126,13 +126,13 @@ function Skills({enableNext}) {
                 </div>
                </div>
                <div className="flex gap-3 mt-4">
-                 <Button type="button" variant="outline" className="bg-gradient-to-r from-blue-500 to-purple-500 text-white font-semibold shadow-md hover:scale-105 active:scale-95 transition-all" onClick={AddNewSkill}>+ Add More</Button>
-                 <Button type="button" variant="outline" className="bg-red-500/90 text-white font-semibold shadow-md hover:scale-105 active:scale-95 transition-all" onClick={() => RemoveSkill(index)} disabled={skillsList.length === 1}>- Remove</Button>
+                 <Button type="button" variant="outline" className="bg-gradient-to-r from-blue-500 to-purple-500 text-white font-semibold shadow-md hover:scale-105 active:scale-95 transition-all w-20" onClick={AddNewSkill}>Add More</Button>
+                 <Button type="button" variant="outline" className="bg-red-500/90 text-white font-semibold shadow-md hover:scale-105 active:scale-95 transition-all w-15" onClick={() => RemoveSkill(index)} disabled={skillsList.length === 1}>Remove</Button>
                </div>
              </div>
           ))}
         </div>
-        <div className="sticky bottom-0 bg-transparent pt-4 flex justify-end z-10">
+        <div className=" bottom-0 bg-transparent pt-4 flex justify-end z-10">
           <Button 
             type="submit" 
             disabled={loading} 
@@ -146,4 +146,4 @@ function Skills({enableNext}) {
   )
 }
 
-export default Skills 
+export default Skills;

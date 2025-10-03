@@ -1,4 +1,4 @@
-import React, { useContext } from 'react'
+import React, { useContext, useMemo } from 'react'
 import { ResumeInfoContext } from '../../../../../context/ResumeInfoContext'
 import PersonalDetailPreview from './preview/PersonalDetailPreview';
 import SummeryPreview from './preview/SummeryPreview';
@@ -6,10 +6,15 @@ import ExperiencePreview from './preview/ExperiencePreview';
 import EducationalPreview from './preview/EducationalPreview';
 import SkillsPreview from './preview/SkillsPreview';
 import CertificatePreview from './preview/CertificatePreview';
-import { FileText, Download, Share2, Eye } from 'lucide-react';
+import { FileText, Share2, Eye } from 'lucide-react';
 
-function ResumePreview() {
-  const { resumeInfo, setResumeInfo } = useContext(ResumeInfoContext);
+function ResumePreview({ activeStep }) {
+  const { resumeInfo } = useContext(ResumeInfoContext);
+  
+  // Memoize the theme color to prevent unnecessary re-renders
+  const themeColor = useMemo(() => {
+    return resumeInfo?.themeColor ? `linear-gradient(to right, ${resumeInfo.themeColor}, ${resumeInfo.themeColor}80)` : 'linear-gradient(to right, #3b82f6, #8b5cf6)';
+  }, [resumeInfo?.themeColor]);
 
   return (
     <div className="relative">
@@ -29,9 +34,7 @@ function ResumePreview() {
           <button className="p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200">
             <Eye className="w-4 h-4" />
           </button>
-          <button className="p-2 text-gray-600 hover:text-green-600 hover:bg-green-50 rounded-lg transition-all duration-200">
-            <Download className="w-4 h-4" />
-          </button>
+
           <button className="p-2 text-gray-600 hover:text-purple-600 hover:bg-purple-50 rounded-lg transition-all duration-200">
             <Share2 className="w-4 h-4" />
           </button>
@@ -39,55 +42,50 @@ function ResumePreview() {
       </div>
 
       {/* Resume Content */}
-      <div className="bg-white rounded-2xl shadow-xl border border-gray-200/50 overflow-hidden animate-in fade-in duration-500">
+      <div className="bg-white rounded-2xl shadow-xl border border-gray-200/50 overflow-hidden">
         {/* Resume Header with Theme Color */}
         <div 
-          className="h-2 bg-gradient-to-r from-blue-500 to-purple-500"
+          className="h-2"
           style={{
-            background: resumeInfo?.themeColor ? `linear-gradient(to right, ${resumeInfo.themeColor}, ${resumeInfo.themeColor}80)` : 'linear-gradient(to right, #3b82f6, #8b5cf6)'
+            background: themeColor
           }}
         ></div>
         
         {/* Resume Content */}
-        <div className="p-8 space-y-6">
+        <div data-resume-preview className="p-8 space-y-6">
           {/* Personal details */}
-          <div className="animate-in slide-in-from-top-2 duration-300">
+          <div>
             <PersonalDetailPreview resumeInfo={resumeInfo} />
           </div>
           
           {/* Summary */}
-          <div className="animate-in slide-in-from-top-2 duration-300" style={{ animationDelay: '100ms' }}>
+          <div>
             <SummeryPreview resumeInfo={resumeInfo} />
           </div>
           
           {/* Professional Experience */}
-          <div className="animate-in slide-in-from-top-2 duration-300" style={{ animationDelay: '200ms' }}>
+          <div>
             <ExperiencePreview resumeInfo={resumeInfo} />
           </div>
           
           {/* Educational */}
-          <div className="animate-in slide-in-from-top-2 duration-300" style={{ animationDelay: '300ms' }}>
+          <div>
             <EducationalPreview resumeInfo={resumeInfo} />
           </div>
           
           {/* Skills */}
-          <div className="animate-in slide-in-from-top-2 duration-300" style={{ animationDelay: '400ms' }}>
+          <div>
             <SkillsPreview resumeInfo={resumeInfo} />
           </div>
           
           {/* Certificates */}
-          <div className="animate-in slide-in-from-top-2 duration-300" style={{ animationDelay: '500ms' }}>
+          <div>
             <CertificatePreview certificates={resumeInfo?.certificates} />
           </div>
         </div>
       </div>
 
-      {/* Floating Action Button */}
-      <div className="fixed bottom-6 right-6 z-50">
-        <button className="w-14 h-14 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-110 flex items-center justify-center">
-          <Download className="w-6 h-6" />
-        </button>
-      </div>
+
     </div>
   )
 }

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react'
+import React, { useState, useEffect, useContext, useCallback, useMemo } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import PersonalDetail from './forms/PersonalDetail'
 import { Button } from '../../../../../components/ui/button'
@@ -31,45 +31,50 @@ function FormSection({ onStepChange, activeStep }) {
     }
   }, [activeFormIndex, onStepChange]);
 
-  const handleNext = () => {
+  const handleNext = useCallback(() => {
     if (activeFormIndex < 7 && enableNext) {
       setActiveFormIndex(activeFormIndex + 1);
     }
-  };
+  }, [activeFormIndex, enableNext]);
 
-  const handlePrevious = () => {
+  const handlePrevious = useCallback(() => {
     if (activeFormIndex > 1) {
       setActiveFormIndex(activeFormIndex - 1);
     }
-  };
+  }, [activeFormIndex]);
 
-  // Theme color options
-  const themeColors = [
+  // Theme color options - memoized to prevent recreation
+  const themeColors = useMemo(() => [
     { name: 'Blue/Purple', value: '#3b82f6' },
     { name: 'Green/Teal', value: '#10b981' },
     { name: 'Orange/Red', value: '#f59e42' },
     { name: 'Pink', value: '#ec4899' },
     { name: 'Gray', value: '#64748b' },
-  ];
+  ], []);
 
-  const handleThemeChange = (color) => {
-    setResumeInfo({ ...resumeInfo, themeColor: color });
+  const handleThemeChange = useCallback((color) => {
+    setResumeInfo(prev => ({ ...prev, themeColor: color }));
     setIsThemeDropdownOpen(false);
-  };
+  }, [setResumeInfo]);
 
-  const renderForm = () => {
+  // Memoize the enableNext callback to prevent unnecessary re-renders
+  const handleEnableNext = useCallback((value) => {
+    setEnableNext(value);
+  }, []);
+
+  const renderForm = useMemo(() => {
     const forms = [
-      <PersonalDetail key="personal" enableNext={(v) => setEnableNext(v)} />,
-      <Summery key="summary" enableNext={(v) => setEnableNext(v)} />,
-      <Experience key="experience" enableNext={(v) => setEnableNext(v)} />,
-      <Education key="education" enableNext={(v) => setEnableNext(v)} />,
-      <Skills key="skills" enableNext={(v) => setEnableNext(v)} />,
-      <Certificate key="certificate" enableNext={(v) => setEnableNext(v)} />,
+      <PersonalDetail key="personal" enableNext={handleEnableNext} />,
+      <Summery key="summary" enableNext={handleEnableNext} />,
+      <Experience key="experience" enableNext={handleEnableNext} />,
+      <Education key="education" enableNext={handleEnableNext} />,
+      <Skills key="skills" enableNext={handleEnableNext} />,
+      <Certificate key="certificate" enableNext={handleEnableNext} />,
       <ResumeFinal key="final" />
     ];
 
     return forms[activeFormIndex - 1];
-  };
+  }, [activeFormIndex, handleEnableNext]);
 
   return (
     <div className="space-y-6">
@@ -117,10 +122,10 @@ function FormSection({ onStepChange, activeStep }) {
               size="sm"
               variant="outline"
               onClick={handlePrevious}
-              className="bg-white/80 backdrop-blur border-gray-200 hover:bg-white transition-all duration-200"
+              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105 disabled:transform-none disabled:opacity-50 px-2 py-1.5 sm:px-4 sm:py-2 text-sm sm:text-base"
             >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Previous
+              <ArrowLeft className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+              <span className="hidden sm:inline"></span>
             </Button>
           )}
           
@@ -129,18 +134,19 @@ function FormSection({ onStepChange, activeStep }) {
               size="sm"
               onClick={handleNext}
               disabled={!enableNext}
-              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105 disabled:transform-none disabled:opacity-50"
+              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105 disabled:transform-none disabled:opacity-50 px-2 py-1.5 sm:px-4 sm:py-2 text-sm sm:text-base"
             >
-              Next
-              <ArrowRight className="w-4 h-4 ml-2" />
+              <span className="hidden sm:inline"></span>
+              <span className="sm:hidden"></span>
+              <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4 ml-1 sm:ml-2" />
             </Button>
           )}
         </div>
       </div>
 
-      {/* Form Content with Animation */}
-      <div className="animate-in fade-in duration-300">
-        {renderForm()}
+      {/* Form Content with Optimized Animation */}
+      <div className="transition-opacity duration-200">
+        {renderForm}
       </div>
     </div>
   )
